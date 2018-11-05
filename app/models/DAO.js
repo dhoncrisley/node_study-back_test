@@ -27,6 +27,43 @@ DAO.prototype.getFuncionarios = function (application, req, res) {
     this._connection(dados, res);
 
 }
+DAO.prototype.getFuncionario = function (application, req, res) {
+    if (!ObjectId.isValid(req.params.id)) {
+
+        res.send('id inválido')
+    } else {
+
+
+        var dados = {
+            operacao: "BUSCAR",
+            tipo: 'aggregate',
+            query: [{
+                    $match: {
+                        _id: {
+                            $eq: ObjectId(req.params.id)
+                        }
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "comissoes_pagas",
+                        localField: '_id',
+                        foreignField: "_id_funcionario",
+                        as: "comissoes"
+                    }
+                }
+            ],
+            collection: "funcionarios",
+            callback: function (err, data) {
+                /* if (err){
+                    console.log(err.message);
+                }; */
+                res.send(data);
+            }
+        };
+        this._connection(dados, res);
+    }
+}
 DAO.prototype.getComissoes = function (application, req, res) {
     var dados = {
         operacao: "BUSCAR",
@@ -39,7 +76,7 @@ DAO.prototype.getComissoes = function (application, req, res) {
                 as: "detalhes_funcionario"
             }
         }],
-        collection: "comissoes",
+        collection: "comissoes_pagas",
         callback: function (err, data) {
             if (err) throw err;
             res.send(data);
@@ -54,13 +91,33 @@ DAO.prototype.addComissao = function (application, req, res) {
     var dados = {
         operacao: "ADD",
         query: {
-            _id_funcionario: ObjectId(dadosForm._id_funcionario),
             mes: dadosForm.mes,
             ano: dadosForm.ano,
             valor: dadosForm.valor,
+            data_receb: dadosForm.data_receb
+        },
+        collection: "comissoes_recebidas",
+        callback: function (err, result) {
+            console.log(result);
+            res.send('comissão salva!');
+        }
+    };
+    this._connection(dados, res);
+
+}
+
+DAO.prototype.atribComissao = function (application, req, res) {
+    var dadosForm = req.body;
+
+    var dados = {
+        operacao: "ADD",
+        query: {
+            _id_funcionario: ObjectId(dadosForm._id_funcionario),
+            _id_comissao: ObjectId(dadosForm._id_comissao),
+            valor: dadosForm.valor,
             data_pagto: dadosForm.data_pagto
         },
-        collection: "comissoes",
+        collection: "comissoes_pagas",
         callback: function (err, result) {
             console.log(result);
             res.send('comissão salva!');
@@ -70,7 +127,7 @@ DAO.prototype.addComissao = function (application, req, res) {
 
 }
 DAO.prototype.addFuncionario = function (application, req, res) {
-    var dadosForm = req.query;
+    var dadosForm = req.body;
     //res.send(req.query);
     console.log(dadosForm.nome)
     var dados = {
