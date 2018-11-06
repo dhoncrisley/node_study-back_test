@@ -10,10 +10,25 @@ module.exports.getFuncionario = function (application, req, res) {
     var dao = new application.app.models.DAO(connection);
     dao.getFuncionario(application, req, res);
 }
-module.exports.getComissoes = function (application, req, res) {
+module.exports.getRecebimentos = function (application, req, res) {
     var connection = application.config.dbConnection;
     var dao = new application.app.models.DAO(connection);
-    dao.getComissoes(application, req, res);
+    dao.getRecebimentos(application, req, res);
+}
+module.exports.getRecebimento = function (application, req, res) {
+    var connection = application.config.dbConnection;
+    var dao = new application.app.models.DAO(connection);
+    dao.getRecebimento(application, req, res);
+}
+module.exports.getPagamentos = function (application, req, res) {
+    var connection = application.config.dbConnection;
+    var dao = new application.app.models.DAO(connection);
+    dao.getPagamentos(application, req, res);
+}
+module.exports.getPagamento = function (application, req, res) {
+    var connection = application.config.dbConnection;
+    var dao = new application.app.models.DAO(connection);
+    dao.getPagamento(application, req, res);
 }
 
 module.exports.addComissao = function (application, req, res) {
@@ -51,9 +66,9 @@ module.exports.atribComissao = function (application, req, res) {
     dao.atribComissao(application, req, res);
 }
 module.exports.addFuncionario = function (application, req, res) {
-
+    
+    console.log(req.body);
     req.assert('nome', 'o nome não pode ser vazio').notEmpty();
-
     var erros = req.validationErrors();
     if (erros) {
         res.send(erros);
