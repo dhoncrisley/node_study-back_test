@@ -18,9 +18,6 @@ var connMongoDB = function (dados, res) {
 };
 
 function query(db, dados, res) {
-    var comissoesColl = db.collection('comissoes');
-    var funcionariosColl = db.collection('funcionarios');
-
     switch (dados.operacao) {
 
         case "BUSCAR":
@@ -36,10 +33,15 @@ function query(db, dados, res) {
                         .toArray(dados.callback);
                     break;
             }
-
             break;
         case "ADD":
-            db.collection(dados.collection).save(dados.query).then(dados.callback);
+            db.collection(dados.collection).insertOne(dados.query).then(dados.callback, dados.erro);
+            break;
+        case "DELETE":
+            db.collection(dados.collection).deleteOne(dados.query).then(dados.callback, dados.erro);
+            break;
+        case "PUT":
+            db.collection(dados.collection).updateOne(dados.query[0],dados.query[1],dados.query[2]).then(dados.callback, dados.erro);
             break;
         default:
             break;
